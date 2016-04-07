@@ -6,5 +6,5 @@
 #include "error.h"
 #include "scheme.h"
 
-struct error eval(struct value, struct env*, struct value*);
+struct error eval(struct value, struct env**, struct value*);
 

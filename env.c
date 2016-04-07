@@ -1,74 +1,37 @@
 #include "env.h"
 
-// Yeah... if you wanna know how this one works (and you don't know already), 
-// you'll have to visit wikipedia 'cause I ain't commenting dis shit.
-
-void init_env(struct env* env) {
-    env->val = NULL;
-    for (int i = 0; i < 89; ++i) env->children[i] = NULL;
-}
-
-int translate(char c) {
-    if (c == '!')
-        return 0;
-    else if (c < '\'')
-        return c - '"';
-    else
-        return c - '"' - 2;
+struct env* new_env(void) {
+    struct env* env = malloc(sizeof(struct env));
+    env->trie = malloc(sizeof(struct trie));
+    init_trie(env->trie);
+    env->up = NULL;
+    return env;
 }
 
 struct value* lookup(struct env* env, char* sym) {
-    struct env* iter = env;
-    for (int i = 0; sym[i] != '\0'; ++i)
-        if (iter->children[translate(sym[i])] == NULL)
-            return NULL;
-        else
-            iter = iter->children[translate(sym[i])];
+    struct value* val;
+    for (struct env* iter = env; iter != NULL; iter = iter->up) {
+        if ((val = lookup_trie(iter->trie, sym)) != NULL)
+            return val;
+    }
 
-    return iter->val;
+    return NULL;
 }
 
 void insert(struct env* env, char* sym, struct value val) {
-    int index;
-    struct env* iter = env;
-
-    for (int i = 0; sym[i] != '\0'; ++i) {
-        index = translate(sym[i]);
-        if (iter->children[index] == NULL) {
-            int j;
-            for (j = i; sym[j+1] != '\0'; ++j) {
-                index = translate(sym[j]);
-                iter->children[index] = malloc(sizeof(struct env));
-                init_env(iter->children[index]);
-                iter = iter->children[index];
-            }
-            
-            index = translate(sym[j]);
-            iter->children[index] = malloc(sizeof(struct env));
-            init_env(iter->children[index]);
-            iter->children[index]->val = GC_MALLOC(sizeof(struct value));
-            *iter->children[index]->val = val;
-            return;
-        } else {
-            iter = iter->children[index];
-        }
-    }
-
-    iter->val = GC_MALLOC(sizeof(struct value));
-    *iter->val = val;
+    insert_trie(env->trie, sym, val); 
 }
 
-void free_allocated_env(struct env* env) {
-    for (int i = 0; i < 89; ++i)
-        if (env->children[i] != NULL)
-            free_allocated_env(env->children[i]);
-    GC_FREE(env->val);
-    free(env);
+void descend(struct env** env) {
+    struct env* lower = new_env();
+    lower->up = *env;
+    *env = lower;
 }
 
-void free_env(struct env* env) {
-    for (int i = 0; i < 89; ++i)
-        if (env->children[i] != NULL)
-            free_allocated_env(env->children[i]);
+void ascend(struct env** env) {
+    struct env* upper = (*env)->up;
+    free_trie((*env)->trie);
+    free(*env);
+    *env = upper;
 }
 

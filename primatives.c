@@ -35,7 +35,7 @@ struct error countargs(struct value args, int* ret) {
 // Gets a single argument, automatically checking for malformed expressions
 // (e.g. (+ 2 . 3)), and if the argument list has ended.
 // Also, error handling == very long function declarations
-struct error getarg(struct value* args, char* name, int* num, int expected, struct env* env, struct value* ret) {
+struct error getarg(struct value* args, char* name, int* num, int expected, struct env** env, struct value* ret) {
     if (args->type != PAIR)
         return MALFORMED_EXPR(*args);
     
@@ -66,7 +66,7 @@ struct error endargs(struct value args, char* name, int num, int expected) {
     return SUCCESS;
 }
 
-struct error scm_quote(struct value args, struct env* env, struct value* ret) {
+struct error scm_quote(struct value args, struct env** env, struct value* ret) {
     if (args.pair == NULL)
         return WRONG_NUM_ARGS("quote", 1, 0);
 
@@ -84,7 +84,7 @@ struct error scm_quote(struct value args, struct env* env, struct value* ret) {
     return SUCCESS;
 }
 
-struct error scm_cons(struct value args, struct env* env, struct value* ret) {
+struct error scm_cons(struct value args, struct env** env, struct value* ret) {
     INIT_TRY();
     int num = 0;
     struct value x, y;
@@ -95,7 +95,7 @@ struct error scm_cons(struct value args, struct env* env, struct value* ret) {
     return SUCCESS;
 }
 
-struct error scm_car(struct value args, struct env* env, struct value* ret) {
+struct error scm_car(struct value args, struct env** env, struct value* ret) {
     INIT_TRY();
     int num = 0;
     struct value x;
@@ -108,7 +108,7 @@ struct error scm_car(struct value args, struct env* env, struct value* ret) {
     return SUCCESS;
 }
 
-struct error scm_cdr(struct value args, struct env* env, struct value* ret) {
+struct error scm_cdr(struct value args, struct env** env, struct value* ret) {
     INIT_TRY();
     int num = 0;
     struct value x;
@@ -122,7 +122,7 @@ struct error scm_cdr(struct value args, struct env* env, struct value* ret) {
 }
 
 /*
-struct value scm_add(struct value args, struct env* env) {
+struct value scm_add(struct value args, struct env** env) {
     if (args.type != PAIR)
         ERROR("malformed expression");
     

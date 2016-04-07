@@ -4,19 +4,19 @@
 #include "env.h"
 #include "eval.h"
 #include "parse.h"
+#include "env.h"
 #include "scheme.h"
 #include "primatives.h"
 
 int main(void) {
     GC_INIT();
     
-    struct env env;
-    init_env(&env);
+    struct env* env = new_env();
     
-    insert(&env, "quote", SCMPRIM(scm_quote));
-    insert(&env, "cons", SCMPRIM(scm_cons));
-    insert(&env, "car", SCMPRIM(scm_car));
-    insert(&env, "cdr", SCMPRIM(scm_cdr));
+    insert(env, "quote", SCMPRIM(scm_quote));
+    insert(env, "cons", SCMPRIM(scm_cons));
+    insert(env, "car", SCMPRIM(scm_car));
+    insert(env, "cdr", SCMPRIM(scm_cdr));
 
     // A read-eval loop!
     char* buff;
@@ -51,9 +51,7 @@ int main(void) {
             display_parse_error(parse_err);
             printf("\n");
         }
-    } 
-
-    free_env(&env);
+    }
 
     return 0;
 }

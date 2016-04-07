@@ -1,6 +1,6 @@
 #include "eval.h"
 
-struct error apply(struct value car, struct value cdr, struct env* env, struct value* ret) {
+struct error apply(struct value car, struct value cdr, struct env** env, struct value* ret) {
     INIT_TRY();
     struct value f;
     TRY(eval(car, env, &f));
@@ -10,7 +10,7 @@ struct error apply(struct value car, struct value cdr, struct env* env, struct v
     return f.prim(cdr, env, ret);
 }
 
-struct error eval(struct value val, struct env* env, struct value* ret) {
+struct error eval(struct value val, struct env** env, struct value* ret) {
     struct value* tmp;
 
     switch (val.type) {
@@ -21,7 +21,7 @@ struct error eval(struct value val, struct env* env, struct value* ret) {
             *ret = val;
             return SUCCESS;
         case SYMBOL:
-            tmp = lookup(env, val.symbol);
+            tmp = lookup(*env, val.symbol);
             if (tmp == NULL) {
                 return NOT_IN_SCOPE(val.symbol);
             } else {

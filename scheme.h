@@ -25,7 +25,7 @@ struct value {
         int intv; 
         double real;
         char* symbol;
-        struct error (*prim)(struct value, struct env*, struct value*);
+        struct error (*prim)(struct value, struct env**, struct value*);
         struct pair* pair; 
     };
 };
