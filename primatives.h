@@ -3,6 +3,7 @@
 #include "eval.h"
 #include "scheme.h"
 
+struct error scm_define(struct value, struct env**, struct value*);
 struct error scm_quote(struct value, struct env**, struct value*);
 struct error scm_eval(struct value, struct env**, struct value*);
 struct error scm_lambda(struct value, struct env**, struct value*);

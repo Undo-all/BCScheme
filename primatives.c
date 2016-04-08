@@ -66,6 +66,30 @@ struct error endargs(struct value args, char* name, int num, int expected) {
     return SUCCESS;
 }
 
+struct error scm_define(struct value args, struct env** env, struct value* ret) {
+    INIT_TRY();  
+
+    if (args.pair == NULL)
+        return WRONG_NUM_ARGS("define", 2, 0);
+
+    if (args.pair->car.type != SYMBOL)
+        return WRONG_TYPE("define", args.pair->car);
+
+    char* name = args.pair->car.symbol;
+
+    args = args.pair->cdr;
+    int num = 1;
+    struct value val;
+
+    TRY(getarg(&args, "define", &num, 2, env, &val));
+    TRY(endargs(args, "define", num, 2));
+
+    insert(*env, name, val);
+
+    *ret = SCMVOID; 
+    return SUCCESS;
+}
+
 struct error scm_quote(struct value args, struct env** env, struct value* ret) {
     if (args.pair == NULL)
         return WRONG_NUM_ARGS("quote", 1, 0);

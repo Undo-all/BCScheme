@@ -13,6 +13,7 @@ int main(void) {
     
     struct env* env = new_env();
     
+    insert(env, "define", SCMPRIM(scm_define));    
     insert(env, "quote", SCMPRIM(scm_quote));
     insert(env, "eval", SCMPRIM(scm_eval));
     insert(env, "lambda", SCMPRIM(scm_lambda));
