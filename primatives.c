@@ -84,6 +84,64 @@ struct error scm_quote(struct value args, struct env** env, struct value* ret) {
     return SUCCESS;
 }
 
+struct error scm_eval(struct value args, struct env** env, struct value* ret) {
+    INIT_TRY();
+    int num = 0;
+    struct value x;
+    TRY(getarg(&args, "eval", &num, 1, env, &x));
+    TRY(endargs(args, "eval", num, 2));
+    return eval(x, env, ret);
+}
+
+struct error scm_lambda(struct value args, struct env** env, struct value* ret) { 
+    if (args.pair == NULL)
+        return WRONG_NUM_ARGS("lambda", 2, 0);
+
+    if (args.pair->car.type != PAIR)
+        return WRONG_TYPE("lambda", args.pair->car);
+    
+    int num = 0; 
+    char** lamargs = malloc(sizeof(char*));
+    struct value iter = args.pair->car;
+    while (iter.pair != NULL) {
+        lamargs = realloc(lamargs, sizeof(char*) * ++num);
+
+        if (iter.pair->car.type != SYMBOL)
+            return WRONG_TYPE("lambda", iter.pair->car);
+        
+        lamargs[num-1] = malloc(sizeof(char) * (strlen(iter.pair->car.symbol) + 1));
+        strcpy(lamargs[num-1], iter.pair->car.symbol);
+
+        iter = iter.pair->cdr;
+        if (iter.type != PAIR)
+            return MALFORMED_EXPR(iter);
+    }
+
+    struct lambda lam;
+    lam.num_args = num;
+    lam.args = lamargs;
+
+    iter = args.pair->cdr;
+    if (iter.type != PAIR)
+        return MALFORMED_EXPR(iter);
+
+    num = 0;
+    struct value* body = malloc(sizeof(struct value));
+
+    while (iter.pair != NULL) {
+        body = realloc(body, sizeof(struct value) * ++num);
+        body[num-1] = iter.pair->car;
+        iter = iter.pair->cdr;
+        if (iter.type != PAIR)
+            return MALFORMED_EXPR(iter);
+    }
+
+    lam.body_len = num;
+    lam.body = body;
+    *ret = SCMLAM(lam);
+    return SUCCESS;
+}
+
 struct error scm_cons(struct value args, struct env** env, struct value* ret) {
     INIT_TRY();
     int num = 0;

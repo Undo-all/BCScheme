@@ -13,6 +13,6 @@ struct env {
 struct env* new_env(void);
 void insert(struct env*, char*, struct value);
 struct value* lookup(struct env*, char*);
-void descent(struct env**);
-void ascent(struct env**);
+void descend(struct env**);
+void ascend(struct env**);
 

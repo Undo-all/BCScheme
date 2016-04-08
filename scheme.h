@@ -12,12 +12,20 @@ enum {
     REAL,
     SYMBOL,
     PRIM,
+    LAMBDA,
     PAIR,
     VOID, 
 };
 
 struct env;
 struct error;
+
+struct lambda {
+    int num_args;
+    char** args;
+    int body_len;
+    struct value* body;
+};
 
 struct value {
     uint8_t type;
@@ -26,7 +34,8 @@ struct value {
         double real;
         char* symbol;
         struct error (*prim)(struct value, struct env**, struct value*);
-        struct pair* pair; 
+        struct lambda lambda;
+        struct pair* pair;
     };
 };
 
@@ -41,6 +50,7 @@ struct pair {
 #define SCMREAL(x) ((struct value) { .type = REAL, .real = x })
 #define SCMSYM(s) ((struct value) { .type = SYMBOL, .symbol = s })
 #define SCMPRIM(f) ((struct value) { .type = PRIM, .prim = f })
+#define SCMLAM(l) ((struct value) { .type = LAMBDA, .lambda = l })
 #define SCMVOID ((struct value) { .type = VOID })
 
 struct value cons(struct value x, struct value y);
