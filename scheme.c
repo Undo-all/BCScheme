@@ -39,6 +39,21 @@ void fdisplay(FILE* f, struct value val) {
             break;
         case PRIM:
             fprintf(f, "<primative>");
+            break;
+        case LAMBDA:
+            if (val.lambda.num_args == 0) {
+                fprintf(f, "<lambda of ()>");
+            } else {
+                fprintf(f, "<lambda of (");
+                fprintf(f, "%s", val.lambda.args[0]);
+                for (int i = 1; i < val.lambda.num_args; ++i) {
+                    fprintf(f, ", %s", val.lambda.args[i]);
+                }
+
+                fprintf(f, ")>");
+            }
+            
+            break;
         case PAIR:
             if (val.pair == NULL) {
                 fprintf(f, "()");
